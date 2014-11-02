@@ -28,7 +28,7 @@ extern const int costabi[0x400];
 
 #define COS(x) costabi[(((x)>>6)&0x3ffu)]
 
-enum gen_type { gentype_dtmf, gentype_sine, gentype_zvei, gentype_hdlc, gentype_uart, gentype_clipfsk };
+enum gen_type { gentype_dtmf, gentype_sine, gentype_zvei, gentype_hdlc, gentype_uart, gentype_clipfsk, gentype_fmsfsk };
 
 struct gen_params {
 	enum gen_type type;
@@ -60,6 +60,12 @@ struct gen_params {
 			int pktlen;
 			unsigned char pkt[256];
 		} clipfsk;
+		struct {
+			int modulation;
+			int txdelay;
+			int pktlen;
+			unsigned char pkt[256];
+		} fmsfsk;
 		struct {
 			int modulation;
 			int txdelay;
@@ -98,6 +104,12 @@ struct gen_state {
 			unsigned char data[512];
 		} clipfsk;
 		struct {
+			int ch_idx, bitmask;
+			unsigned int ph, phinc, bitph;
+			unsigned int datalen;
+			unsigned char data[512];
+		} fmsfsk;
+		struct {
 			int lastb;
 			int ch_idx, bitmask;
 			unsigned int ph, phinc, bitph;
@@ -121,6 +133,9 @@ extern int gen_uart(signed short *buf, int buflen, struct gen_params *p, struct 
 
 extern void gen_init_clipfsk(struct gen_params *p, struct gen_state *s);
 extern int gen_clipfsk(signed short *buf, int buflen, struct gen_params *p, struct gen_state *s);
+
+extern void gen_init_fmsfsk(struct gen_params *p, struct gen_state *s);
+extern int gen_fmsfsk(signed short *buf, int buflen, struct gen_params *p, struct gen_state *s);
 
 extern void gen_init_hdlc(struct gen_params *p, struct gen_state *s);
 extern int gen_hdlc(signed short *buf, int buflen, struct gen_params *p, struct gen_state *s);
